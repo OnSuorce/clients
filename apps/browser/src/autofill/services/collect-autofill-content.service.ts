@@ -56,6 +56,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly updateAfterMutationTimeout = 1000;
   private readonly overlaySetupDelayMs = 100;
   private readonly formFieldQueryString;
+  private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -988,7 +989,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.mutationsQueue.length) {
-      requestIdleCallbackPolyfill(debounce(this.processMutations, 100), { timeout: 500 });
+      requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
     }
     this.mutationsQueue.push(mutations);
   };
